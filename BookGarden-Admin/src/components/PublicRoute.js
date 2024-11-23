@@ -17,7 +17,7 @@ const PublicRoute = ({ children, ...rest }) => {
                 ) : (
                         <Redirect
                             to={{
-                                pathname: "/dash-board",
+                                pathname: "/dashboard",
                                 state: { from: location }
                             }}
                         />

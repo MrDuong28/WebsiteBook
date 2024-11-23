@@ -12,7 +12,7 @@ import Cart from "../pages/Purchase/Cart/cart";
 import Pay from "../pages/Purchase/Pay/pay";
 import CartHistory from "../pages/Purchase/ManagementCart/cartHistory";
 import Contact from "../pages/Contact/contact";
-import Complaint from "../pages/Complaint/Complaint";
+import Complaint from "../pages/Complaint/complaint";
 
 import { Layout } from "antd";
 import { withRouter } from "react-router";
