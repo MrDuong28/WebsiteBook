@@ -12,7 +12,6 @@ import Cart from "../pages/Purchase/Cart/cart";
 import Pay from "../pages/Purchase/Pay/pay";
 import CartHistory from "../pages/Purchase/ManagementCart/cartHistory";
 import Contact from "../pages/Contact/contact";
-import Complaint from "../pages/Complaint/complaint";
 
 import { Layout } from "antd";
 import { withRouter } from "react-router";
@@ -51,9 +50,6 @@ const RouterURL = withRouter(({ location }) => {
             </PrivateRoute>
             <PrivateRoute exact path="/product-list/:id">
               <ProductList />
-            </PrivateRoute>
-            <PrivateRoute exact path="/complaint/:id">
-              <Complaint />
             </PrivateRoute>
           </Switch>
           <Layout>
@@ -94,9 +90,6 @@ const RouterURL = withRouter(({ location }) => {
             </Route>
             <Route exact path="/reset-password/:id">
               <ResetPassword />
-            </Route>
-            <Route exact path="/complaint/:id">
-                <Complaint />
             </Route>
           </Switch>
           <Layout>
@@ -174,12 +167,6 @@ const RouterURL = withRouter(({ location }) => {
           </Route>
           <Route exact path="/reset-password/:id">
             <PublicContainer />
-          </Route>
-          <Route exact path="/complaint">
-            <PublicContainer />
-          </Route>
-          <Route exact path="/complaint/:id">
-              <PublicContainer />
           </Route>
           <Route>
             <NotFound />
