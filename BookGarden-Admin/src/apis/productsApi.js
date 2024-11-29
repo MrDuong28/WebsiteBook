@@ -11,6 +11,10 @@ const productApi = {
     const url = "/category/" + id;
     return axiosClient.get(url);
   },
+  getComplaint() {
+    const url = "/complaint";
+    return axiosClient.get(url);
+  },
   getListCategory(data) {
     const url = "/category/search";
     if (!data.page || !data.limit) {

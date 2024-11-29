@@ -65,6 +65,15 @@ function DropdownAvatar() {
           Quản lý đơn hàng
         </a>
       </Menu.Item>
+      <Menu.Item icon={<ShoppingCartOutlined />}>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleRouter("/cart-history?complaints=true")}
+        >
+          Quản lý khiếu nại
+        </a>
+      </Menu.Item>
       <Menu.Item key="3" icon={<LogoutOutlined />} onClick={Logout}>
         <a target="_blank" rel="noopener noreferrer">
           Đăng xuất

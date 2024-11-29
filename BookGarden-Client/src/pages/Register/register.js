@@ -106,13 +106,13 @@ const RegisterCustomer = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập tên hiển thị!",
+                    message: "Vui lòng nhập người dùng",
                   },
                 ]}
               >
                 <Input
                   prefix={<UserOutlined className="siteformitemicon" />}
-                  placeholder="Tên hiển thị"
+                  placeholder="Tên người dùng"
                 />
               </Form.Item>
 
@@ -186,7 +186,7 @@ const RegisterCustomer = () => {
                 </Button>
               </Form.Item>
               <div className="link-login">
-                Đã có tài khoản?{" "}
+                Đã có tài khoản?
                 <Link className="link" to="/login">
                   Đăng nhập
                 </Link>

@@ -19,6 +19,12 @@ const Login = lazy(() => {
     new Promise((resolve) => setTimeout(resolve, 0)),
   ]).then(([moduleExports]) => moduleExports);
 });
+const Complaint = lazy(() => {
+  return Promise.all([
+    import("../pages/Complaint/complaint"),
+    new Promise((resolve) => setTimeout(resolve, 0)),
+  ]).then(([moduleExports]) => moduleExports);
+});
 
 const AccountManagement = lazy(() => {
   return Promise.all([
@@ -122,6 +128,7 @@ const RouterURL = withRouter(({ location }) => {
       <PublicRoute exact path="/login">
         <Login />
       </PublicRoute>
+
       <PublicRoute exact path="/reset-password/:id">
         <ChangePassword />
       </PublicRoute>
@@ -146,7 +153,11 @@ const RouterURL = withRouter(({ location }) => {
                 <DashBoard />
               </Suspense>
             </PrivateRoute>
-
+            <PrivateRoute exact path="/complaint-list">
+              <Suspense fallback={<LoadingScreen />}>
+                <Complaint />
+              </Suspense>
+            </PrivateRoute>
             <PrivateRoute exact path="/profile">
               <Suspense fallback={<LoadingScreen />}>
                 <Profile />
@@ -184,6 +195,7 @@ const RouterURL = withRouter(({ location }) => {
                 <CategoryList />
               </Suspense>
             </PrivateRoute>
+
             <PrivateRoute exact path="/author-list">
               <Suspense fallback={<LoadingScreen />}>
                 <AuthorList />
@@ -268,6 +280,9 @@ const RouterURL = withRouter(({ location }) => {
             <DefaultContainer />
           </Route>
           <Route exact path="/order-list">
+            <DefaultContainer />
+          </Route>
+          <Route exact path="/complaint-list">
             <DefaultContainer />
           </Route>
           <Route exact path="/order-details/:id">

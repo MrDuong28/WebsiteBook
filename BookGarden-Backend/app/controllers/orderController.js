@@ -25,9 +25,12 @@ const orderController = {
     }
   },
 
-  getOrderById: (req, res) => {
+  getOrderById: async (req, res) => {
     try {
-      res.status(200).json(res.order);
+      const data = await OrderModel.findById(req.params.id).populate({
+        path: "products.product",
+      });
+      res.status(200).json(data);
     } catch (err) {
       res.status(500).json(err);
     }

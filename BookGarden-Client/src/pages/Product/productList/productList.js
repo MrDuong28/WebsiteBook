@@ -1,4 +1,14 @@
-import { Breadcrumb, Button, Card, Col, Form, List, Row, Spin } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  Col,
+  Form,
+  List,
+  Row,
+  Slider,
+  Spin,
+} from "antd";
 import Paragraph from "antd/lib/typography/Paragraph";
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams, useRouteMatch } from "react-router-dom";
@@ -95,7 +105,7 @@ const ProductList = () => {
               </Breadcrumb>
             </div>
             <hr></hr>
-            {/* <div className="container box">
+            <div className="container box">
               {categories.map((category) => (
                 <div
                   key={category.id}
@@ -105,20 +115,20 @@ const ProductList = () => {
                   <div className="menu-category-1">{category.name}</div>
                 </div>
               ))}
-            </div> */}
+            </div>
             {/* <div className="container">
-                    <Button type="primary" onClick={() => handleSearchClick()}>
-                        Search theo giá sản phẩm
-                    </Button>
-                    <Slider
-                        range
-                        min={0}
-                        max={250000}
-                        value={[minPrice, maxPrice]}
-                        onChange={handleSliderChange}
-                        onAfterChange={() => handleSearchClick()}
-                    />
-                </div> */}
+              <Button type="primary" onClick={() => handleSearchClick()}>
+                Search theo giá sản phẩm
+              </Button>
+              <Slider
+                range
+                min={0}
+                max={250000}
+                value={[minPrice, maxPrice]}
+                onChange={handleSliderChange}
+                onAfterChange={() => handleSearchClick()}
+              />
+            </div> */}
             <div
               className="list-products container"
               key="1"

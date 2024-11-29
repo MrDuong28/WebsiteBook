@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./dropdownMenu.css";
 import { useHistory } from "react-router-dom";
 import { Avatar, Dropdown, Row, Menu } from "antd";
-import {
-  UserOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import userApi from "../../apis/userApi";
 
 function DropdownAvatar() {
@@ -37,16 +33,16 @@ function DropdownAvatar() {
 
   const avatar = (
     <Menu>
-      {/* <Menu.Item icon={<UserOutlined />} >
-        <a target="_blank" rel="noopener noreferrer" onClick={() => handleRouter("/profile")}>
+      <Menu.Item icon={<UserOutlined />}>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleRouter("/profile")}
+        >
           Trang cá nhân
         </a>
-      </Menu.Item> */}
-      {/* <Menu.Item icon={<SettingOutlined />} >
-        <a target="_blank" rel="noopener noreferrer" >
-          Cài đặt
-        </a>
-      </Menu.Item> */}
+      </Menu.Item>
+
       <Menu.Item key="3" icon={<LogoutOutlined />} onClick={Logout}>
         <a target="_blank" rel="noopener noreferrer">
           Thoát

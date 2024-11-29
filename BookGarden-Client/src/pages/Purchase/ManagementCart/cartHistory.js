@@ -11,7 +11,7 @@ import {
 } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams, useLocation } from "react-router-dom";
 import axiosClient from "../../../apis/axiosClient";
 import eventApi from "../../../apis/eventApi";
 import productApi from "../../../apis/productApi";
@@ -22,7 +22,9 @@ const CartHistory = () => {
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const history = useHistory();
-  
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const complaints = searchParams.get("complaints");
   const handleCancelOrder = (order) => {
     console.log(order);
     Modal.confirm({
@@ -188,27 +190,125 @@ const CartHistory = () => {
       render: (text, record) => (
         <div className="text-center">
           <button
-            className={`px-4 py-2 text-white font-semibold rounded ${record.status === "pending"
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-gray-300 cursor-not-allowed"
-              }`}
+            className={`px-4 py-2 text-white font-semibold rounded ${
+              record.status === "pending"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
             onClick={() => handleCancelOrder(record)}
             disabled={record.status !== "pending"}
           >
             Hủy đơn hàng
           </button>
-          <button
-            className="px-4 py-2 text-white font-semibold rounded bg-yellow-500 hover:bg-yellow-600 mt-3"
-            onClick={() => history.push(`/complaint/${record._id}`)}
-          >
-            Khiếu nại/Hoàn hàng
-          </button>
-
+          {record.status == "final" && (
+            <button
+              className="px-4 py-2 text-white font-semibold rounded bg-yellow-500 hover:bg-yellow-600 mt-3"
+              onClick={() => history.push(`/complaint/${record._id}`)}
+            >
+              Khiếu nại/Hoàn hàng
+            </button>
+          )}
         </div>
       ),
     },
   ];
+  const columnsComplain = [
+    {
+      title: <div className="text-center">Thông tin sản phẩm</div>,
+      dataIndex: "products",
+      key: "productInfo",
+      render: (products) => (
+        <div className="">
+          {products.map((item, index) => (
+            <div key={index} className="product-info">
+              <div className="product-item ">
+                <img
+                  src={item.product?.image}
+                  alt={item.product?.name}
+                  className="product-image "
+                />
+              </div>
+              <h3 className="product-name-1">{item.product?.name}</h3>
+              <div className="product-price">
+                Giá gốc:
+                {item?.product?.salePrice?.toLocaleString("vi", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+              </div>
+              <div className="product-stock">Số lượng: {item?.stock}</div>
+              <div className="product-total">
+                Tổng tiền:
+                {(item?.product?.salePrice * item.stock).toLocaleString("vi", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+              </div>
+              {index !== products.length - 1 && <Divider />}
+            </div>
+          ))}
+        </div>
+      ),
+    },
 
+    {
+      title: <div className="text-center">Tổng đơn hàng</div>,
+      dataIndex: "orderTotal",
+      key: "orderTotal",
+      render: (products) => (
+        <div className="text-center">
+          {products?.toLocaleString("vi", {
+            style: "currency",
+            currency: "VND",
+          })}
+        </div>
+      ),
+    },
+
+    {
+      title: <div className="text-center">Địa chỉ</div>,
+      dataIndex: "address",
+      key: "address",
+      render: (address) => <div className="text-center">{address}</div>,
+    },
+
+    {
+      title: <div className="text-center">Hình thức thanh toán</div>,
+      dataIndex: "billing",
+      key: "billing",
+      render: (billing) => <div className="text-center">{billing}</div>,
+    },
+
+    {
+      title: <div className="text-center">Trạng thái</div>,
+      dataIndex: "status",
+      key: "status",
+      render: (slugs) => {
+        const checkStatus = {
+          finalcomplaint: "đã hoàn thành",
+          pendingcomplaint: "đang chờ",
+          acceptcomplaint: "đã duyệt",
+          refundcomplaint: "đang hoàn trả",
+        };
+        return (
+          <span className="flex justify-center items-center w-full text-center">
+            {checkStatus[slugs]}
+          </span>
+        );
+      },
+    },
+
+    {
+      title: <div className="text-center">Ngày đặt</div>,
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (createdAt) => (
+        <span className="text-center">
+          {moment(createdAt).format("DD/MM/YYYY HH:mm")}
+        </span>
+      ),
+    },
+  ];
   const handleList = () => {
     (async () => {
       try {
@@ -238,7 +338,9 @@ const CartHistory = () => {
                   <span>Trang chủ</span>
                 </Breadcrumb.Item>
                 <Breadcrumb.Item href="">
-                  <span>Quản lý đơn hàng </span>
+                  <span>
+                    {complaints ? "Quản lý khiếu nại" : "Quản lý đơn hàng"}{" "}
+                  </span>
                 </Breadcrumb.Item>
               </Breadcrumb>
             </div>
@@ -247,8 +349,24 @@ const CartHistory = () => {
               <br></br>
               <Card>
                 <Table
-                  columns={columns}
-                  dataSource={orderList.data}
+                  columns={complaints ? columnsComplain : columns}
+                  dataSource={
+                    complaints
+                      ? orderList.data?.filter(
+                          (ic) =>
+                            ic.status == "finalcomplaint" ||
+                            ic.status == "pendingcomplaint" ||
+                            ic.status == "acceptcomplaint" ||
+                            ic.status == "refundcomplaint"
+                        )
+                      : orderList.data?.filter(
+                          (ic) =>
+                            ic.status != "finalcomplaint" &&
+                            ic.status != "pendingcomplaint" &&
+                            ic.status != "acceptcomplaint" &&
+                            ic.status != "refundcomplaint"
+                        )
+                  }
                   rowKey="_id"
                   pagination={{ position: ["bottomCenter"] }}
                 />

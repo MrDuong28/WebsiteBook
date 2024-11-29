@@ -25,6 +25,7 @@ import {
 import { LeftSquareOutlined } from "@ant-design/icons";
 
 import Slider from "react-slick";
+import axios from "axios";
 
 const { Meta } = Card;
 const { Option } = Select;
@@ -49,12 +50,14 @@ const Pay = () => {
   let { id } = useParams();
   const history = useHistory();
   const [showModal, setShowModal] = useState(false);
-
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
   const hideModal = () => {
     setVisible(false);
   };
+  const [totalFee, setTotalFee] = useState(0);
 
   const accountCreate = async (values) => {
+    console.log(values, "values");
     if (values.billing === "paypal") {
       localStorage.setItem("description", values.description);
       localStorage.setItem("address", values.address);
@@ -85,7 +88,7 @@ const Pay = () => {
           description: values.description,
           status: "pending",
           products: productDetail,
-          orderTotal: orderTotal,
+          orderTotal: Number(totalPrice) + Number(totalFee),
         };
 
         console.log(formatData);
@@ -181,7 +184,7 @@ const Pay = () => {
           description: description,
           status: "pending",
           products: productDetail,
-          orderTotal: orderTotal,
+          orderTotal: Number(totalPrice) + Number(totalFee),
         };
 
         console.log(formatData);
@@ -227,7 +230,10 @@ const Pay = () => {
     form.resetFields();
     history.push("/cart");
   };
-
+  const totalPrice = cart.reduce(
+    (acc, item) => acc + item.salePrice * item.quantity,
+    0
+  );
   useEffect(() => {
     (async () => {
       try {
@@ -277,7 +283,122 @@ const Pay = () => {
     })();
     window.scrollTo(0, 0);
   }, []);
+  const [tinh, setTinh] = useState([]); // Danh sách tỉnh
+  const [huyen, setHuyen] = useState([]); // Danh sách huyện
+  const [xa, setXa] = useState([]); // Danh sách xã
+  const [idXa, setIdXa] = useState(null);
+  const [idHuyen2, setIdHuyen] = useState(null);
 
+  const fetchTinh = async () => {
+    try {
+      const response = await axios.get(
+        "https://online-gateway.ghn.vn/shiip/public-api/master-data/province",
+        {
+          headers: {
+            token: "11acfacb-a8a1-11ef-a094-f28ffa88cdab",
+          },
+        }
+      );
+      console.log(response, "response");
+      setTinh(response.data.data);
+    } catch (error) {
+      console.error("Lỗi khi tải tỉnh:", error);
+    }
+  };
+  const onGetPrice = async (idx) => {
+    // setIdXa(idx);
+    await fetchPrice(idx);
+  };
+  const fetchHuyen = async (idTinh) => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get(
+        "https://online-gateway.ghn.vn/shiip/public-api/master-data/district",
+        {
+          params: {
+            province_id: idTinh,
+          },
+          headers: {
+            token: "11acfacb-a8a1-11ef-a094-f28ffa88cdab",
+          },
+        }
+      );
+      setHuyen(response.data.data);
+      setXa([]); // Reset xã khi chọn tỉnh mới
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchXa = async (idHuyen) => {
+    try {
+      setLoading(true);
+      setIdHuyen(idHuyen);
+
+      const response = await axios.get(
+        "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward",
+        {
+          params: {
+            district_id: idHuyen,
+          },
+          headers: {
+            token: "11acfacb-a8a1-11ef-a094-f28ffa88cdab",
+          },
+        }
+      );
+      setXa(response.data.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPrice = async (cc) => {
+    try {
+      setLoading(true);
+      const dataPayload = {
+        service_type_id: 2,
+        from_district_id: 1442,
+        from_ward_code: "21211",
+        to_district_id: idHuyen2,
+        to_ward_code: cc,
+        height: 1,
+        length: 1,
+        weight: 1,
+        width: 1,
+        insurance_value: 0,
+        coupon: null,
+        items: [
+          {
+            name: "TEST1",
+            quantity: 1,
+            height: 1,
+            weight: 1,
+            length: 1,
+            width: 1,
+          },
+        ],
+      };
+      const response = await axios.post(
+        "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+        dataPayload,
+        {
+          headers: {
+            token: "11acfacb-a8a1-11ef-a094-f28ffa88cdab",
+            shop_id: "5472459",
+          },
+        }
+      );
+      console.log(response?.data?.data?.total, "responseresponseresponse");
+      setTotalFee(response?.data?.data?.total);
+      // setXa(response.data.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchTinh();
+  }, []);
   return (
     <div class="py-5">
       <Spin spinning={false}>
@@ -352,22 +473,120 @@ const Pay = () => {
                   </Form.Item>
 
                   <Form.Item
-                    name="address"
-                    label="Địa chỉ"
+                    name="address5"
+                    label=" Tỉnh/Thành"
                     hasFeedback
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập địa chỉ",
-                      },
-                      // { max: 20, message: 'Password maximum 20 characters.' },
-                      // { min: 6, message: 'Password at least 6 characters.' },
-                    ]}
                     style={{ marginBottom: 15 }}
                   >
-                    <Input placeholder="Địa chỉ" />
+                    {/* <Input placeholder="Địa chỉ" /> */}
+                    <div className="mb-4">
+                      <Select
+                        placeholder="Chọn Tỉnh/Thành"
+                        className="w-full"
+                        allowClear
+                        onChange={(e) => fetchHuyen(e)}
+                      >
+                        {tinh.map((item) => {
+                          return (
+                            <Option
+                              style={{ color: "black" }}
+                              className="text-black"
+                              key={item.ProvinceID}
+                              value={item.ProvinceID}
+                            >
+                              <p style={{ color: "black" }}>
+                                {item.ProvinceName}
+                              </p>
+                            </Option>
+                          );
+                        })}
+                      </Select>
+                    </div>
+                  </Form.Item>
+                  <Form.Item
+                    name="address2"
+                    label="Quận/Huyện"
+                    hasFeedback
+                    style={{ marginBottom: 15 }}
+                  >
+                    <div className="mb-4">
+                      <Select
+                        placeholder="Chọn Quận/Huyện"
+                        className="w-full"
+                        allowClear
+                        onChange={(e) => fetchXa(e)}
+                        disabled={!huyen.length}
+                      >
+                        {huyen.map((item) => (
+                          <Option key={item.DistrictID} value={item.DistrictID}>
+                            {item.DistrictName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </Form.Item>
+                  <Form.Item
+                    name="address3"
+                    label="Xã/Phường"
+                    hasFeedback
+                    style={{ marginBottom: 15 }}
+                  >
+                    <div className="mb-4">
+                      <Select
+                        placeholder="Chọn Xã/Phường"
+                        className="w-full"
+                        allowClear
+                        onChange={(e) => {
+                          onGetPrice(e);
+                        }}
+                        disabled={!xa.length}
+                      >
+                        {xa.map((item) => (
+                          <Option key={item.WardCode} value={item.WardCode}>
+                            {item.WardName}
+                          </Option>
+                        ))}
+                      </Select>
+                    </div>
                   </Form.Item>
 
+                  <p>Phí ship</p>
+                  <p className="font-bold text-black text-xl">
+                    {" "}
+                    {totalFee?.toLocaleString()} VND
+                  </p>
+                  <p>Tổng tiền ( bao gồm phí ship)</p>
+                  <p className="font-bold text-black text-xl">
+                    {" "}
+                    {(
+                      Number(totalPrice) + Number(totalFee)
+                    )?.toLocaleString()}{" "}
+                    VND
+                  </p>
+                  {/* <Form.Item
+                    name="total"
+                    label="Tổng tiền ( bao gồm phí ship)"
+                    hasFeedback
+                    style={{ marginBottom: 10 }}
+                  >
+                    <Input
+                      disabled
+                      defaultValue={
+                        totalFee != 0
+                          ? Number(totalPrice) + Number(totalFee)
+                          : 0
+                      }
+                      placeholder="Số điện thoại"
+                    />
+                  </Form.Item> */}
+                  <Form.Item
+                    name="address"
+                    label=" Nhập chi tiết số nhà , ngách ngõ "
+                    hasFeedback
+                    style={{ marginBottom: 15 }}
+                  >
+                    <Input placeholder="Chi tiết Địa chỉ" />
+                  </Form.Item>
                   <Form.Item
                     name="description"
                     label="Lưu ý cho đơn hàng"
@@ -391,8 +610,7 @@ const Pay = () => {
                   >
                     <Radio.Group>
                       <Radio value={"cod"}>COD</Radio>
-                      {/* <Radio value={"paypal"}>PAYPAL</Radio> */}
-                      {/* <Radio value={2}>B</Radio> */}
+                      <Radio value={"paypal"}>PAYPAL</Radio>
                     </Radio.Group>
                   </Form.Item>
 

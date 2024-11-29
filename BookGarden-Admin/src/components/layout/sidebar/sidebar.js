@@ -4,15 +4,9 @@ import { Layout, Menu } from "antd";
 import { useHistory, useLocation } from "react-router-dom";
 import {
   UserOutlined,
-  ContainerOutlined,
   DashboardOutlined,
-  BarsOutlined,
-  BgColorsOutlined,
-  ShoppingOutlined,
-  AuditOutlined,
   ShoppingCartOutlined,
   FormOutlined,
-  NotificationOutlined,
   EditOutlined,
   CloudUploadOutlined,
   UnorderedListOutlined,
@@ -49,6 +43,12 @@ function Sidebar() {
       key: "order-list",
       title: "Quản lý đơn hàng",
       link: "/order-list",
+      icon: <ShoppingCartOutlined />,
+    },
+    {
+      key: "kl-list",
+      title: "Quản lý khiếu nại",
+      link: "/complaint-list",
       icon: <ShoppingCartOutlined />,
     },
   ];

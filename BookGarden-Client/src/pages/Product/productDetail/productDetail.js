@@ -71,19 +71,19 @@ const ProductDetail = () => {
       (item) => item._id === product._id
     );
     if (existingItemIndex !== -1) {
-      // If product already exists in the cart, increase its quantity
+      // If product already exists in the cart, increase its stock
       updatedItems = existingItems.map((item, index) => {
         if (index === existingItemIndex) {
           return {
             ...item,
-            quantity: item.quantity + 1,
+            stock: item.stock + 1,
           };
         }
         return item;
       });
     } else {
       // If product does not exist in the cart, add it to the cart
-      updatedItems = [...existingItems, { ...product, quantity: 1 }];
+      updatedItems = [...existingItems, { ...product, stock: 1 }];
     }
     console.log(updatedItems.length);
     setCartLength(updatedItems.length);
@@ -100,19 +100,19 @@ const ProductDetail = () => {
       (item) => item._id === product._id
     );
     if (existingItemIndex !== -1) {
-      // If product already exists in the cart, increase its quantity
+      // If product already exists in the cart, increase its stock
       updatedItems = existingItems.map((item, index) => {
         if (index === existingItemIndex) {
           return {
             ...item,
-            quantity: item.quantity + 1,
+            stock: item.stock + 1,
           };
         }
         return item;
       });
     } else {
       // If product does not exist in the cart, add it to the cart
-      updatedItems = [...existingItems, { ...product, quantity: 1 }];
+      updatedItems = [...existingItems, { ...product, stock: 1 }];
     }
     console.log(updatedItems.length);
     setCartLength(updatedItems.length);

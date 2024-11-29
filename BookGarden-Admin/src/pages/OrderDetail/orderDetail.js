@@ -23,24 +23,11 @@ import {
   Table,
 } from "antd";
 import {
-  AppstoreAddOutlined,
-  QrcodeOutlined,
   DeleteOutlined,
-  PlusOutlined,
-  EyeOutlined,
-  ExclamationCircleOutlined,
-  SearchOutlined,
-  CalendarOutlined,
-  UserOutlined,
-  TeamOutlined,
   HomeOutlined,
-  HistoryOutlined,
   ShoppingCartOutlined,
-  FormOutlined,
-  TagOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import eventApi from "../../apis/eventApi";
 import orderApi from "../../apis/orderApi";
 import { useHistory, useParams } from "react-router-dom";
 import { DateTime } from "../../utils/dateTime";
@@ -418,7 +405,6 @@ const OrderDetail = () => {
           </div>
         </div>
 
-        {/* <Pagination style={{ textAlign: "center", marginBottom: 20 }} current={currentPage} defaultCurrent={1} total={total} onChange={handlePage}></Pagination> */}
         <BackTop style={{ textAlign: "right" }} />
       </Spin>
     </div>

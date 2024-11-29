@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./header.css";
-import logo from "../../../assets/image/logo-dtu.png";
 import MenuDropdown from "../../DropdownMenu/dropdownMenu";
 import {
   Layout,

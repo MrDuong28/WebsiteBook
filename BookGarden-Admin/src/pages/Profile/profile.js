@@ -1,104 +1,114 @@
 import {
-    FormOutlined,
-    HomeOutlined, PhoneOutlined,
-    UserOutlined
-} from '@ant-design/icons';
-import {
-    Breadcrumb,
-    Card,
-    Col,
-    Divider,
-    Row,
-    Spin
-} from 'antd';
-import React, { useEffect, useState } from 'react';
+  FormOutlined,
+  HomeOutlined,
+  PhoneOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { Breadcrumb, Card, Col, Divider, Row, Spin, Typography } from "antd";
+import React, { useEffect, useState } from "react";
 import userApi from "../../apis/userApi";
 import "./profile.css";
 
+const { Title, Text } = Typography;
+
 const Profile = () => {
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState([]);
 
-    const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await userApi.getProfile();
+        setUserData(response.user);
+        setLoading(false);
+      } catch (error) {
+        console.log("Failed to fetch profile user:" + error);
+      }
+    })();
+    window.scrollTo(0, 0);
+  }, []);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const response = await userApi.getProfile();
-                console.log(response);
-                setUserData(response.user);
-                setLoading(false);
-            } catch (error) {
-                console.log('Failed to fetch profile user:' + error);
-            }
-        })();
-        window.scrollTo(0, 0);
-    }, [])
-    
-    return (
+  return (
+    <div>
+      <Spin spinning={loading}>
+        <div style={{ marginTop: 20, marginLeft: 24 }}>
+          <Breadcrumb>
+            <Breadcrumb.Item href="">
+              <HomeOutlined />
+            </Breadcrumb.Item>
+            <Breadcrumb.Item href="">
+              <FormOutlined />
+              <span>Trang cá nhân</span>
+            </Breadcrumb.Item>
+          </Breadcrumb>
+        </div>
+
         <div>
-            <Spin spinning={loading}>
-                <div style={{ marginTop: 20, marginLeft: 24 }}>
-                    <Breadcrumb>
-                        <Breadcrumb.Item href="">
-                            <HomeOutlined />
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Item href="">
-                            <FormOutlined />
-                            <span>Trang cá nhân</span>
-                        </Breadcrumb.Item>
-                    </Breadcrumb>
-                </div>
-
+          <Row justify="center" style={{ marginTop: 40 }}>
+            {/* Profile Card */}
+            <Col span={12}>
+              <Card
+                hoverable
+                style={{
+                  borderRadius: 12,
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  textAlign: "center",
+                  padding: 20,
+                }}
+              >
                 <div>
-                    <div>
-                        <Row justify="center">
-                            <Col span="9" style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
-                                <Card hoverable={true} className="profile-card" style={{ padding: 0, margin: 0 }}>
-                                    <Row justify="center">
-                                        <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=2" style={{ width: 150, height: 150 }}></img>
-                                    </Row>
-                                    <Row justify="center">
-                                        <Col span="24">
-                                            <Row justify="center">
-                                                <strong style={{ fontSize: 18 }}>{userData.username}</strong>
-                                            </Row>
-                                            <Row justify="center">
-                                                <p style={{ padding: 0, margin: 0, marginBottom: 5 }}>{userData.email}</p>
-                                            </Row>
-                                            <Row justify="center">
-                                                <p>{userData.birthday}</p>
-                                            </Row>
-                                            <Divider style={{ padding: 0, margin: 0 }} ></Divider>
-                                            <Row justify="center" style={{ marginTop: 10 }}>
-                                                <Col span="4">
-                                                    <Row justify="center">
-                                                        <p>{<UserOutlined />}</p>
-                                                        <p style={{ marginLeft: 5 }}>{userData.role}</p>
-                                                    </Row>
-                                                </Col>
-                                                <Col span="8">
-                                                    <Row justify="center">
-                                                        <p>{<PhoneOutlined />}</p>
-                                                        <p style={{ marginLeft: 5 }}>{userData.phone}</p>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                </Card>
-                            </Col>
-
-                            <Col span="6" style={{ marginTop: 20 }}>
-                               
-                            </Col>
-                        </Row>
-                    </div>
+                  <img
+                    src={
+                      userData.image ||
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6FfegZtXuygiQ-sFo1N7QBBE-Eqj9Ic5-Dw&s"
+                    }
+                    alt="Avatar"
+                    style={{
+                      width: 150,
+                      height: 150,
+                      borderRadius: "50%",
+                      border: "4px solid #1890ff",
+                      objectFit: "cover",
+                      marginBottom: 20,
+                    }}
+                  />
                 </div>
-
-
-            </Spin>
-        </div >
-    )
-}
+                <Title level={3} style={{ marginBottom: 5 }}>
+                  {userData.username || "Tên người dùng"}
+                </Title>
+                <Text type="secondary" style={{ fontSize: 16 }}>
+                  {userData.email || "Email không khả dụng"}
+                </Text>
+                <Divider style={{ margin: "20px 0" }} />
+                <Row gutter={16} justify="center">
+                  <Col span={8}>
+                    <div>
+                      <UserOutlined
+                        style={{ fontSize: 20, color: "#1890ff" }}
+                      />
+                      <Text style={{ display: "block", marginTop: 5 }}>
+                        {userData.role || "Vai trò"}
+                      </Text>
+                    </div>
+                  </Col>
+                  <Col span={8}>
+                    <div>
+                      <PhoneOutlined
+                        style={{ fontSize: 20, color: "#1890ff" }}
+                      />
+                      <Text style={{ display: "block", marginTop: 5 }}>
+                        {userData.phone || "Số điện thoại"}
+                      </Text>
+                    </div>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+      </Spin>
+    </div>
+  );
+};
 
 export default Profile;

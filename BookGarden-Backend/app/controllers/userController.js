@@ -36,6 +36,7 @@ const userController = {
           username: req.body.username,
           password: hashed,
           role: req.body.role,
+          image: req.body.image,
           status: req.body.status,
         });
 
@@ -60,11 +61,11 @@ const userController = {
 
   updateUser: async (req, res) => {
     const _id = req.params.id;
-    const { username, email, password, role, phone, status } = req.body;
+    const { username, email, password, role, phone, status, image } = req.body;
     try {
       const user = await UserModel.findByIdAndUpdate(
         _id,
-        { username, email, password, role, phone, status },
+        { username, email, password, role, phone, status, image },
         { new: true }
       );
       if (!user) {
