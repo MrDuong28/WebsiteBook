@@ -1,6 +1,3 @@
-const ProductModel = require("../models/product");
-const CategoryModel = require("../models/category");
-
 const uploadFileController = {
   uploadFile: async (req, res) => {
     try {

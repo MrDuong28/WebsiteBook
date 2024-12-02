@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const verifyToken = require("../../utils/middleware");
 const middleware = require("../../utils/middleware");
 
 const multer = require("multer");
@@ -18,11 +17,6 @@ const storage = multer.diskStorage({
 // Tạo middleware upload để xử lý yêu cầu upload ảnh
 const upload = multer({ storage: storage });
 
-router.post(
-  "/",
-  verifyToken.checkLogin,
-  upload.single("image"),
-  uploadFileController.uploadFile
-);
+router.post("/", upload.single("image"), uploadFileController.uploadFile);
 
 module.exports = router;

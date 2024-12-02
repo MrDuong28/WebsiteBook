@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styles from "./header.module.css";
-import userApi from "../../../apis/userApi";
-import logo from "../../../assets/image/logo-dtu.png";
 import DropdownAvatar from "../../DropdownMenu/dropdownMenu";
 import { useHistory, NavLink } from "react-router-dom";
 import {
@@ -125,11 +123,7 @@ function Topbar() {
         <NavLink className={styles.navlink} to="/home" activeStyle>
           Trang chủ
         </NavLink>
-        <NavLink
-          className={styles.navlink}
-          to="/product-list/65fd67f2207e1639f49dc016"
-          activeStyle
-        >
+        <NavLink className={styles.navlink} to="/product-list" activeStyle>
           Sản phẩm
         </NavLink>
 
@@ -193,15 +187,7 @@ function Topbar() {
               />
             </Col>
           </Row>
-          {/* <Row>
-            <span className={styles.container} style={{ marginRight: 15 }} >
-              <Popover placement="bottomRight" title="Thông Báo" content={content} visible={visiblePopover} onVisibleChange={handleVisibleChange} trigger="click">
-                <Badge count={countNotification} >
-                  <Avatar style={{ backgroundColor: "#FFFFFF", marginLeft: 5, marginRight: 5, cursor: "pointer" }} icon={<BellOutlined style={{ fontSize: '18px', color: '#000000' }} />} />
-                </Badge>
-              </Popover>
-            </span>
-          </Row> */}
+
           <Row>
             <DropdownAvatar key="avatar" />
             <p
@@ -226,55 +212,6 @@ function Topbar() {
           </Modal>
         </div>
       </div>
-      <Drawer
-        title="Menu"
-        placement="right"
-        onClose={onClose}
-        open={visibleDrawer}
-      >
-        <div className={styles.navmenu2}>
-          <NavLink className={styles.navlink2} to="/home" activeStyle>
-            Trang chủ
-          </NavLink>
-          <NavLink className={styles.navlink2} to="/event" activeStyle>
-            Sản phẩm
-          </NavLink>
-          <NavLink className={styles.navlink2} to="/about" activeStyle>
-            Về chúng tôi
-          </NavLink>
-          <NavLink className={styles.navlink2} to="/contact" activeStyle>
-            Liên hệ
-          </NavLink>
-          <div className={styles.navlink2}>
-            <div
-              style={{ display: "flex", cursor: "pointer" }}
-              onClick={() => handleLink("/cart")}
-            >
-              <p
-                style={{
-                  marginRight: 10,
-                  padding: 0,
-                  margin: 0,
-                  color: "black",
-                }}
-              >
-                <ShoppingCartOutlined
-                  style={{ fontSize: "18px", color: "black" }}
-                />{" "}
-                {cart} Giỏ hàng
-              </p>
-              <Badge
-                style={{ marginLeft: 10 }}
-                overflowCount={9999}
-                count={userData?.score > 0 ? userData?.score : 0}
-              />
-            </div>
-          </div>
-          <div className={styles.navlink2}>
-            <DropdownAvatar key="avatar" />
-          </div>
-        </div>
-      </Drawer>
     </Header>
   );
 }

@@ -284,6 +284,7 @@ const Complaint = () => {
           pendingcomplaint: "đang chờ",
           acceptcomplaint: "đã duyệt",
           refundcomplaint: "đang hoàn trả",
+          final: "Đã hủy",
         };
         return <p>{checkStatus[image]}</p>;
       },
@@ -327,7 +328,7 @@ const Complaint = () => {
         <a>
           {text?.map((itc) => (
             <>
-              <img className="!w-[100px]" src={itc} /> <br />
+              <img src={itc} style={{ width: "100px" }} /> <br />
             </>
           ))}
         </a>
@@ -341,17 +342,20 @@ const Complaint = () => {
       render: (text, record) => {
         console.log(record, "record");
         const statusFlow = {
-          pendingcomplaint: ["acceptcomplaint"],
-          acceptcomplaint: ["refundcomplaint"],
-          refundcomplaint: ["finalcomplaint"],
-          finalcomplaint: [],
+          pendingcomplaint: ["acceptcomplaint", "final"], // Có thể hủy khiếu nại từ trạng thái "Đang chờ"
+          acceptcomplaint: ["refundcomplaint"], // Có thể hủy khiếu nại từ trạng thái "Đã duyệt"
+          refundcomplaint: ["finalcomplaint"], // Không được hủy khi đang hoàn trả
+          finalcomplaint: [], // Hoàn thành, không thay đổi được
+          final: [], // Đã hủy, không thay đổi được
         };
+
         const validNextStatuses = statusFlow[record.status] || [];
         const allStatuses = [
-          { value: "pendingcomplaint", label: "đang chờ" },
-          { value: "acceptcomplaint", label: "đã duyệt" },
-          { value: "refundcomplaint", label: "đang hoàn trả" },
-          { value: "finalcomplaint", label: "đã hoàn thành" },
+          { value: "pendingcomplaint", label: "Đang chờ" },
+          { value: "acceptcomplaint", label: "Đã duyệt" },
+          { value: "refundcomplaint", label: "Đang hoàn trả" },
+          { value: "finalcomplaint", label: "Đã hoàn thành" },
+          { value: "final", label: "Đã hủy" },
         ];
         return (
           <div className="">
@@ -370,7 +374,6 @@ const Complaint = () => {
                   key={status.value}
                   value={status.value}
                   disabled={!validNextStatuses.includes(status.value)}
-                  className="w-[120px]"
                 >
                   {status.label}
                 </Select.Option>
@@ -531,7 +534,6 @@ const Complaint = () => {
           </Form>
         </Modal>
 
-        {/* <Pagination style={{ textAlign: "center", marginBottom: 20 }} current={currentPage} defaultCurrent={1} total={total} onChange={handlePage}></Pagination> */}
         <BackTop style={{ textAlign: "right" }} />
       </Spin>
     </div>

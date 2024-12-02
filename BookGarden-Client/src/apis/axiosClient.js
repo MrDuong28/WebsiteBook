@@ -26,11 +26,6 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // if (error.response.status === 401) {
-    //     history.push("/");
-    //     localStorage.clear();
-    //     localStorage.removeItem("token");
-    // }
     console.log(error.response.status);
   }
 );

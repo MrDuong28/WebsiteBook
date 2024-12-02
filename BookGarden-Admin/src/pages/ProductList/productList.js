@@ -505,18 +505,7 @@ const ProductList = () => {
       key: "pulisher",
       render: (res) => <span>{res?.name}</span>,
     },
-    // {
-    //   title: "Audio",
-    //   dataIndex: "audioUrl",
-    //   key: "audioUrl",
-    //   render: (audioUrl) => (
-    //     <span>
-    //       <a href={audioUrl} target="_blank" rel="noopener noreferrer">
-    //         Nghe audio
-    //       </a>
-    //     </span>
-    //   ),
-    // },
+
     {
       title: "Trạng thái",
       dataIndex: "status",

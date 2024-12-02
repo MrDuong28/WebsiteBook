@@ -51,11 +51,15 @@ function DropdownAvatar() {
 
   const avatarPrivate = (
     <Menu>
-      {/* <Menu.Item icon={<UserOutlined />}  >
-        <a target="_blank" rel="noopener noreferrer" onClick={() => handleRouter("/profile")}>
+      <Menu.Item icon={<UserOutlined />}>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleRouter("/profile")}
+        >
           Trang cá nhân
         </a>
-      </Menu.Item> */}
+      </Menu.Item>
       <Menu.Item icon={<ShoppingCartOutlined />}>
         <a
           target="_blank"

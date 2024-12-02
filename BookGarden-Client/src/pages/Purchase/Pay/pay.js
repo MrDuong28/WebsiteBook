@@ -231,7 +231,7 @@ const Pay = () => {
     history.push("/cart");
   };
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.salePrice * item.quantity,
+    (acc, item) => acc + item.salePrice * item.stock,
     0
   );
   useEffect(() => {
@@ -371,7 +371,7 @@ const Pay = () => {
         items: [
           {
             name: "TEST1",
-            quantity: 1,
+            stock: 1,
             height: 1,
             weight: 1,
             length: 1,

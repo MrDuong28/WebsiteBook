@@ -128,6 +128,45 @@ app.get("/api/update-complaint/:id", async (req, res) => {
         }
       );
     }
+    // Route DELETE để hủy khiếu nại
+    app.delete("/api/complaint/:id", async (req, res) => {
+      try {
+        const complaint = await complaintModel.findById(req.params.id); // Tìm khiếu nại theo id
+
+        if (!complaint) {
+          return res.status(404).json({ message: "Không tìm thấy khiếu nại" });
+        }
+
+        // Kiểm tra trạng thái của khiếu nại, chỉ cho phép hủy khiếu nại với trạng thái 'pendingcomplaint'
+        if (complaint.status !== "pendingcomplaint") {
+          return res.status(400).json({
+            message:
+              "Không thể hủy khiếu nại này vì trạng thái không phải 'pendingcomplaint'",
+          });
+        }
+
+        // Cập nhật trạng thái đơn hàng tương ứng (nếu có)
+        await order.findByIdAndUpdate(
+          complaint.orderId,
+          {
+            $set: {
+              status: "completed", // Hoặc trạng thái nào đó tương ứng với việc hủy khiếu nại
+            },
+          },
+          {
+            new: true,
+          }
+        );
+
+        // Xóa khiếu nại
+        await complaint.remove();
+
+        res.status(200).json({ message: "Hủy khiếu nại thành công" });
+      } catch (error) {
+        res.status(500).json({ message: "Lỗi khi xóa khiếu nại", error });
+      }
+    });
+
     const emailContent = `
         Xin chào ${"Khách hàng"},
 

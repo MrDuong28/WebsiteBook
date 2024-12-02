@@ -212,6 +212,53 @@ const CartHistory = () => {
       ),
     },
   ];
+  const handleCancelComplaint = async (complaint) => {
+    // Kiểm tra nếu trạng thái là 'pendingcomplaint'
+    if (complaint.status !== "pendingcomplaint") {
+      notification["error"]({
+        message: "Không thể hủy khiếu nại",
+        description: 'Chỉ khiếu nại có trạng thái "Đang chờ" mới có thể hủy.',
+      });
+      return;
+    }
+
+    Modal.confirm({
+      title: "Xác nhận hủy khiếu nại",
+      content: "Bạn có chắc muốn hủy khiếu nại này?",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          setLoading(true);
+          console.log("Complaint Data:", complaint);
+          console.log("Order ID:", complaint._id);
+
+          const updateComplaint = { status: "canceledcomplaint" };
+          await axiosClient.put(`/complaint/${complaint._id}`, updateComplaint);
+
+          // Khôi phục trạng thái đơn hàng (giả sử trạng thái ban đầu là "final")
+          const updateOrder = { status: "final" }; // Thay thế trạng thái phù hợp
+          await axiosClient.put(`/order/${complaint._id}`, updateOrder);
+
+          notification["success"]({
+            message: "Thông báo",
+            description:
+              "Hủy khiếu nại thành công và đơn hàng đã được khôi phục.",
+          });
+
+          handleList(); // Cập nhật lại danh sách hiển thị
+          setLoading(false);
+        } catch (error) {
+          notification["error"]({
+            message: "Thông báo",
+            description: "Đã xảy ra lỗi khi hủy khiếu nại.",
+          });
+          setLoading(false);
+        }
+      },
+    });
+  };
+
   const columnsComplain = [
     {
       title: <div className="text-center">Thông tin sản phẩm</div>,
@@ -306,6 +353,23 @@ const CartHistory = () => {
         <span className="text-center">
           {moment(createdAt).format("DD/MM/YYYY HH:mm")}
         </span>
+      ),
+    },
+    {
+      title: <div className="text-center">Action</div>,
+      dataIndex: "complaintAction",
+      key: "complaintAction",
+      render: (text, record) => (
+        <div className="text-center">
+          {record.status === "pendingcomplaint" && (
+            <button
+              className="px-4 py-2 text-white font-semibold rounded bg-red-500 hover:bg-red-600"
+              onClick={() => handleCancelComplaint(record)}
+            >
+              Hủy khiếu nại
+            </button>
+          )}
+        </div>
       ),
     },
   ];

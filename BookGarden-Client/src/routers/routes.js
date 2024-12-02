@@ -1,3 +1,4 @@
+// Cập nhật RouterURL
 import React from "react";
 import Home from "../pages/Home/home";
 import Login from "../pages/Login/login";
@@ -14,7 +15,6 @@ import CartHistory from "../pages/Purchase/ManagementCart/cartHistory";
 import Contact from "../pages/Contact/contact";
 
 import { Layout } from "antd";
-import { withRouter } from "react-router";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import FinalPay from "../pages/Purchase/FinalPay/finalPay";
 import Register from "../pages/Register/register";
@@ -24,7 +24,7 @@ import NewsDetail from "../pages/NewsDetai/newsDetai";
 import ResetPassword from "../pages/ResetPassword/resetPassword";
 import Complaint from "../pages/Complaint/complaint";
 
-const RouterURL = withRouter(({ location }) => {
+const RouterURL = ({ location }) => {
   const PrivateContainer = () => (
     <div>
       <Layout style={{ minHeight: "100vh" }}>
@@ -49,7 +49,10 @@ const RouterURL = withRouter(({ location }) => {
             <PrivateRoute exact path="/cart-history">
               <CartHistory />
             </PrivateRoute>
-            <PrivateRoute exact path="/product-list/:id">
+            <PrivateRoute exact path="/product-list">
+              <ProductList />
+            </PrivateRoute>
+            <PrivateRoute exact path="/:id">
               <ProductList />
             </PrivateRoute>
             <PrivateRoute exact path="/complaint/:id">
@@ -88,7 +91,7 @@ const RouterURL = withRouter(({ location }) => {
             <Route exact path="/news/:id">
               <NewsDetail />
             </Route>
-            <Route exact path="/product-list/:id">
+            <Route exact path="/product-list">
               <ProductList />
             </Route>
             <Route exact path="/reset-password/:id">
@@ -96,6 +99,10 @@ const RouterURL = withRouter(({ location }) => {
             </Route>
             <Route exact path="/complaint/:id">
               <Complaint />
+            </Route>
+            {/* Thêm route cho Category */}
+            <Route exact path="/:id">
+              <ProductList />
             </Route>
           </Switch>
           <Layout>
@@ -161,7 +168,7 @@ const RouterURL = withRouter(({ location }) => {
           <Route exact path="/cart-history">
             <PrivateContainer />
           </Route>
-          <Route exact path="/product-list/:id">
+          <Route exact path="/product-list">
             <PublicContainer />
           </Route>
           <Route exact path="/news">
@@ -179,6 +186,10 @@ const RouterURL = withRouter(({ location }) => {
           <Route exact path="/complaint/:id">
             <PublicContainer />
           </Route>
+          {/* Thêm route cho Category */}
+          <Route exact path="/:id">
+            <PublicContainer />
+          </Route>
           <Route>
             <NotFound />
           </Route>
@@ -186,6 +197,6 @@ const RouterURL = withRouter(({ location }) => {
       </Router>
     </div>
   );
-});
+};
 
 export default RouterURL;

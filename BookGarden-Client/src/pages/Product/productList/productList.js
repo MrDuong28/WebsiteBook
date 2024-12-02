@@ -1,174 +1,168 @@
-import {
-  Breadcrumb,
-  Button,
-  Card,
-  Col,
-  Form,
-  List,
-  Row,
-  Slider,
-  Spin,
-} from "antd";
-import Paragraph from "antd/lib/typography/Paragraph";
 import React, { useEffect, useState } from "react";
+import { Spin, Card, List, Breadcrumb, Slider } from "antd";
+import Paragraph from "antd/lib/typography/Paragraph";
 import { useHistory, useParams, useRouteMatch } from "react-router-dom";
-import axiosClient from "../../../apis/axiosClient";
 import productApi from "../../../apis/productApi";
 import triangleTopRight from "../../../assets/icon/Triangle-Top-Right.svg";
 import { numberWithCommas } from "../../../utils/common";
-import "./productList.css";
+import "./productList.css"; // Giữ lại nếu cần thiết
 
 const ProductList = () => {
   const [productDetail, setProductDetail] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form] = Form.useForm();
   const [categories, setCategories] = useState([]);
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(100000000);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [priceRange, setPriceRange] = useState([0, 1000000]); // Default price range from 0 to 1,000,000
 
-  let { id } = useParams();
+  const { id } = useParams();
   const history = useHistory();
   const match = useRouteMatch();
 
-  const handleReadMore = (id) => {
-    console.log(id);
-    history.push("/product-detail/" + id);
-    window.location.reload();
+  // Xử lý điều hướng khi nhấn vào sản phẩm
+  const handleReadMore = (productId) => {
+    history.push("/product-detail/" + productId);
+    window.scrollTo(0, 0);
   };
 
-  const handleCategoryDetails = (id) => {
-    const newPath = match.url.replace(/\/[^/]+$/, `/${id}`);
+  // Xử lý khi chọn danh mục
+  const handleCategoryDetails = async (categoryId) => {
+    const newPath = match.url.replace(/\/[^/]+$/, `/${categoryId}`);
     history.push(newPath);
-    window.location.reload();
+    window.scrollTo(0, 0);
+    setSelectedCategory(categoryId); // Cập nhật danh mục đã chọn
+
+    fetchProducts(categoryId, priceRange); // Gọi lại API với priceRange
   };
 
-  const handleSearchPrice = async (minPrice, maxPrice) => {
+  // Fetch sản phẩm với các tham số lọc
+  const fetchProducts = async (categoryId = id, priceRange) => {
     try {
-      const dataForm = {
-        page: 1,
-        limit: 50,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-      };
-      await axiosClient
-        .post("/product/searchByPrice", dataForm)
-        .then((response) => {
-          if (response === undefined) {
-            setLoading(false);
-          } else {
-            // Lọc các sản phẩm có trạng thái là "Available"
-            setProductDetail(response.data.docs);
-            setLoading(false);
-          }
-        });
+      setLoading(true);
+      const response = await productApi.getProductsByCategory(
+        {
+          page: 1,
+          limit: 100,
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+        },
+        categoryId
+      );
+      setProductDetail(response?.data?.docs || []);
+      setLoading(false);
     } catch (error) {
-      throw error;
+      console.error("Error fetching products:", error);
+      setLoading(false);
     }
   };
 
-  const handleSearchClick = () => {
-    // Gọi hàm tìm kiếm theo giá
-    handleSearchPrice(minPrice, maxPrice);
-  };
-
+  // Lấy dữ liệu sản phẩm và danh mục ban đầu
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        await productApi.getProductCategory(id).then((response) => {
-          // Cập nhật state với danh sách sản phẩm chỉ có trạng thái 'Available'
-          setProductDetail(response.data.docs);
-        });
-        const response = await productApi.getCategory({ limit: 50, page: 1 });
-        setCategories(response.data.docs);
+        setLoading(true);
 
+        // Lấy danh sách sản phẩm từ API (không lọc theo danh mục)
+        const productResponse = await productApi.getListProducts({
+          page: 1,
+          limit: 100, // Lấy 100 sản phẩm hoặc có thể thay đổi theo ý muốn
+        });
+
+        // Lấy danh mục sản phẩm từ API
+        const categoryResponse = await productApi.getCategory({
+          limit: 50,
+          page: 1,
+        });
+
+        // Cập nhật dữ liệu vào state
+        setProductDetail(productResponse.data.docs || []);
+        setCategories(categoryResponse.data.docs || []);
         setLoading(false);
       } catch (error) {
-        console.log("Failed to fetch event detail:" + error);
+        console.error("Failed to fetch products or categories:", error);
+        setLoading(false);
       }
-    })();
+    };
+
+    // Kiểm tra nếu có `id` trong URL để tải sản phẩm theo danh mục ngay từ đầu
+    if (id) {
+      handleCategoryDetails(id); // Nếu có ID danh mục trong URL, gọi API để lấy sản phẩm theo danh mục đó
+    } else {
+      fetchData(); // Nếu không có danh mục, tải sản phẩm mặc định
+    }
     window.scrollTo(0, 0);
-  }, []);
+  }, [id]); // Gọi lại khi ID trong URL thay đổi
+
+  // Thay đổi mức giá lọc
+  const handlePriceChange = (value) => {
+    setPriceRange(value);
+    fetchProducts(selectedCategory, value); // Gọi lại API với giá lọc mới
+  };
 
   return (
     <div>
-      <Spin spinning={false}>
+      <Spin spinning={loading}>
         <Card className="container_details">
-          <div className="product_detail">
-            <div style={{ marginLeft: 5, marginBottom: 10, marginTop: 10 }}>
-              <Breadcrumb>
-                <Breadcrumb.Item href="http://localhost:3500/home">
-                  <span>Trang chủ</span>
-                </Breadcrumb.Item>
-                <Breadcrumb.Item href="">
-                  <span>Sản phẩm </span>
-                </Breadcrumb.Item>
-              </Breadcrumb>
-            </div>
-            <hr></hr>
-            <div className="container box">
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  onClick={() => handleCategoryDetails(category._id)}
-                  className="menu-item-1"
-                >
-                  <div className="menu-category-1">{category.name}</div>
-                </div>
-              ))}
-            </div>
-            {/* <div className="container">
-              <Button type="primary" onClick={() => handleSearchClick()}>
-                Search theo giá sản phẩm
-              </Button>
-              <Slider
-                range
-                min={0}
-                max={250000}
-                value={[minPrice, maxPrice]}
-                onChange={handleSliderChange}
-                onAfterChange={() => handleSearchClick()}
-              />
-            </div> */}
+          {/* Breadcrumb */}
+          <div className="ml-2 mb-4 mt-2">
+            <Breadcrumb>
+              <Breadcrumb.Item href="http://localhost:3500/home">
+                Trang chủ
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>Sản phẩm</Breadcrumb.Item>
+            </Breadcrumb>
+          </div>
+
+          {/* Layout chứa Sidebar và Content */}
+          <div className="flex flex-col lg:flex-row mt-5">
+            {/* Bộ lọc và Danh mục - Bên trái */}
             <div
-              className="list-products container"
-              key="1"
-              style={{ marginTop: 0, marginBottom: 50 }}
+              className="w-full lg:w-1/4 p-5 mb-6 lg:mb-0 bg-gray-50 rounded-lg shadow-md"
+              style={{ backgroundColor: "#f8f8f8" }}
             >
-              <Row>
-                <Col span={12}>
-                  <div className="title-category">
-                    <div class="title">
-                      <h3 style={{ paddingTop: "30px" }}>DANH SÁCH SẢN PHẨM</h3>
-                    </div>
+              {/* Danh mục */}
+              <div className="mb-6">
+                <h3 className="font-bold text-lg mb-6">Danh mục</h3>
+                {categories.map((category) => (
+                  <div
+                    key={category._id}
+                    onClick={() => handleCategoryDetails(category._id)}
+                    className={`cursor-pointer p-3 rounded-md bg-white shadow-md hover:bg-green-100 transition-colors mb-4 ${
+                      selectedCategory === category._id ? "bg-green-100" : ""
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">{category.name}</div>
                   </div>
-                </Col>
-                <Col span={12}>
-                  <div className="button-category">
-                    <Button onClick={() => handleSearchClick()}>
-                      Tất cả sản phẩm
-                    </Button>
-                  </div>
-                </Col>
-              </Row>
-              <Row
-                gutter={{ xs: 8, sm: 16, md: 24, lg: 48 }}
-                className="row-product-details"
-              >
+                ))}
+              </div>
+
+              {/* Bộ lọc theo giá */}
+              <div className="mb-6">
+                <h3 className="font-bold text-lg mb-4">Lọc theo giá</h3>
+                <Slider
+                  range
+                  min={0}
+                  max={1000000}
+                  step={10000}
+                  defaultValue={priceRange}
+                  onChange={handlePriceChange}
+                  tipFormatter={(value) => `${numberWithCommas(value)} đ`}
+                />
+                <div className="text-sm mt-2">
+                  <span>{numberWithCommas(priceRange[0])} đ</span> -{" "}
+                  <span>{numberWithCommas(priceRange[1])} đ</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Content - Danh sách sản phẩm */}
+            <div className="w-full lg:w-3/4 p-2 ">
+              <div>
                 <List
                   grid={{
                     gutter: 16,
-                    column:
-                      productDetail.length >= 4 ? 4 : productDetail.length,
+                    column: 4, // Hiển thị 4 cột
                   }}
-                  size="large"
-                  className="product-list"
-                  pagination={{
-                    onChange: (page) => {
-                      window.scrollTo(0, 0);
-                    },
-                    pageSize: 12,
-                  }}
-                  dataSource={productDetail}
+                  dataSource={productDetail} // Hiển thị các sản phẩm theo danh mục
                   renderItem={(item) => (
                     <List.Item>
                       <div
@@ -242,8 +236,8 @@ const ProductList = () => {
                       )}
                     </List.Item>
                   )}
-                ></List>
-              </Row>
+                />
+              </div>
             </div>
           </div>
         </Card>

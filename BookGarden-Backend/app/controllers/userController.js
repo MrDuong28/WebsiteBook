@@ -1,5 +1,5 @@
 const UserModel = require("../models/user");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const _const = require("../config/constant");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -36,7 +36,6 @@ const userController = {
           username: req.body.username,
           password: hashed,
           role: req.body.role,
-          image: req.body.image,
           status: req.body.status,
         });
 
@@ -61,11 +60,11 @@ const userController = {
 
   updateUser: async (req, res) => {
     const _id = req.params.id;
-    const { username, email, password, role, phone, status, image } = req.body;
+    const { username, email, password, role, phone, status } = req.body;
     try {
       const user = await UserModel.findByIdAndUpdate(
         _id,
-        { username, email, password, role, phone, status, image },
+        { username, email, password, role, phone, status },
         { new: true }
       );
       if (!user) {
