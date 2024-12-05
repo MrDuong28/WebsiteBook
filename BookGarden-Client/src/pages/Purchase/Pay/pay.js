@@ -127,15 +127,22 @@ const Pay = () => {
       }, 1000);
     }
   };
-
+  const exchangeRate = 25000; // Giả sử 1 USD = 25000 VND
   const handlePayment = async (values) => {
     try {
+      // Tính toán tổng tiền (bao gồm phí ship)
+      const totalAmount = Number(totalPrice) + Number(totalFee);
+
+      // Chuyển đổi tổng tiền sang USD
+      const totalAmountInUSD = (totalAmount / exchangeRate).toFixed(2); // Giả sử bạn có tỷ giá hối đoái
+
       const productPayment = {
-        price: "800",
-        description: values.bookingDetails,
+        price: totalAmountInUSD.toString(), // Chuyển đổi thành chuỗi
+        description: values.description, // Sử dụng description từ form
         return_url: "http://localhost:3500" + location.pathname,
         cancel_url: "http://localhost:3500" + location.pathname,
       };
+
       const response = await axiosClient.post("/payment/pay", productPayment);
       if (response.approvalUrl) {
         localStorage.setItem("session_paypal", response.accessToken);
@@ -156,7 +163,6 @@ const Pay = () => {
     try {
       const queryParams = new URLSearchParams(window.location.search);
       const paymentId = queryParams.get("paymentId");
-      // const token = queryParams.get('token');
       const PayerID = queryParams.get("PayerID");
       const token = localStorage.getItem("session_paypal");
       const description = localStorage.getItem("description");
@@ -171,11 +177,12 @@ const Pay = () => {
         },
       });
 
-      console.log(response);
-
       if (response) {
         const local = localStorage.getItem("user");
         const currentUser = JSON.parse(local);
+
+        // Tính toán tổng số tiền (bao gồm phí ship)
+        const totalAmount = Number(totalPrice) + Number(totalFee);
 
         const formatData = {
           userId: currentUser._id,
@@ -184,34 +191,28 @@ const Pay = () => {
           description: description,
           status: "pending",
           products: productDetail,
-          orderTotal: Number(totalPrice) + Number(totalFee),
+          orderTotal: totalAmount, // Lưu tổng số tiền bao gồm phí ship
+          paymentId: paymentId, // Lưu paymentId
+          payerId: PayerID, // Lưu PayerID
         };
 
-        console.log(formatData);
-        await axiosClient.post("/order", formatData).then((response) => {
-          console.log(response);
-          if (response == undefined) {
-            notification["error"]({
-              message: `Thông báo`,
-              description: "Đặt hàng thất bại",
-            });
-          } else {
-            notification["success"]({
-              message: `Thông báo`,
-              description: "Đặt hàng thành công",
-            });
-            form.resetFields();
-            history.push("/final-pay");
-            localStorage.removeItem("cart");
-            localStorage.removeItem("cartLength");
-          }
-        });
-        notification["success"]({
-          message: `Thông báo`,
-          description: "Thanh toán thành công",
-        });
-
-        setShowModal(false);
+        // Gửi yêu cầu lưu đơn hàng vào CSDL
+        const orderResponse = await axiosClient.post("/order", formatData);
+        if (orderResponse) {
+          notification["success"]({
+            message: `Thông báo`,
+            description: "Đặt hàng thành công",
+          });
+          form.resetFields();
+          history.push("/final-pay");
+          localStorage.removeItem("cart");
+          localStorage.removeItem("cartLength");
+        } else {
+          notification["error"]({
+            message: `Thông báo`,
+            description: "Đặt hàng thất bại",
+          });
+        }
       } else {
         notification["error"]({
           message: `Thông báo`,
@@ -222,7 +223,10 @@ const Pay = () => {
       setShowModal(false);
     } catch (error) {
       console.error("Error executing payment:", error);
-      // Xử lý lỗi
+      notification["error"]({
+        message: `Thông báo`,
+        description: "Có lỗi xảy ra trong quá trình thanh toán.",
+      });
     }
   };
 
@@ -552,33 +556,14 @@ const Pay = () => {
 
                   <p>Phí ship</p>
                   <p className="font-bold text-black text-xl">
-                    {" "}
                     {totalFee?.toLocaleString()} VND
                   </p>
                   <p>Tổng tiền ( bao gồm phí ship)</p>
                   <p className="font-bold text-black text-xl">
-                    {" "}
-                    {(
-                      Number(totalPrice) + Number(totalFee)
-                    )?.toLocaleString()}{" "}
+                    {(Number(totalPrice) + Number(totalFee))?.toLocaleString()}{" "}
                     VND
                   </p>
-                  {/* <Form.Item
-                    name="total"
-                    label="Tổng tiền ( bao gồm phí ship)"
-                    hasFeedback
-                    style={{ marginBottom: 10 }}
-                  >
-                    <Input
-                      disabled
-                      defaultValue={
-                        totalFee != 0
-                          ? Number(totalPrice) + Number(totalFee)
-                          : 0
-                      }
-                      placeholder="Số điện thoại"
-                    />
-                  </Form.Item> */}
+
                   <Form.Item
                     name="address"
                     label=" Nhập chi tiết số nhà , ngách ngõ "

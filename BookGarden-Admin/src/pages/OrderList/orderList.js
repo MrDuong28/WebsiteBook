@@ -66,10 +66,12 @@ const OrderList = () => {
 
   const handleCategoryList = async () => {
     try {
-      await orderApi.getListOrder({ page: 1, limit: 10000 }).then((res) => {
-        setOrder(res.data.docs);
-        setLoading(false);
-      });
+      await orderApi
+        .getListOrder({ page: 1, limit: 10000, sort: "-createdAt" })
+        .then((res) => {
+          setOrder(res.data.docs);
+          setLoading(false);
+        });
     } catch (error) {
       console.log("Failed to fetch event list:" + error);
     }
@@ -154,9 +156,6 @@ const OrderList = () => {
           <Option value="final" disabled={status !== "shipping"}>
             Giao hàng thành công
           </Option>
-          <Option value="returned" disabled={status !== "final"}>
-            Đã hoàn trả
-          </Option>
           <Option value="rejected" disabled={status !== "pending"}>
             Đã hủy
           </Option>
@@ -194,10 +193,12 @@ const OrderList = () => {
   useEffect(() => {
     (async () => {
       try {
-        await orderApi.getListOrder({ page: 1, limit: 10000 }).then((res) => {
-          setOrder(res.data.docs);
-          setLoading(false);
-        });
+        const res = await orderApi.getListOrder({ page: 1, limit: 10000 });
+        const sortedData = res.data.docs.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrder(sortedData);
+        setLoading(false);
       } catch (error) {
         console.log("Failed to fetch event list:" + error);
       }

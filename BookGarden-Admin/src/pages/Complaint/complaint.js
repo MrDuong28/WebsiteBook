@@ -280,10 +280,10 @@ const Complaint = () => {
       key: "status",
       render: (image) => {
         const checkStatus = {
-          finalcomplaint: "đã hoàn thành",
-          pendingcomplaint: "đang chờ",
-          acceptcomplaint: "đã duyệt",
-          refundcomplaint: "đang hoàn trả",
+          finalcomplaint: "Đã hoàn thành",
+          pendingcomplaint: "Đang chờ",
+          acceptcomplaint: "Đã duyệt",
+          refundcomplaint: "Đang hoàn trả",
           final: "Đã hủy",
         };
         return <p>{checkStatus[image]}</p>;
@@ -296,7 +296,7 @@ const Complaint = () => {
       render: (image) => <p>{image?.username}</p>,
     },
     {
-      title: "sdt khách hàng",
+      title: "SĐT khách hàng",
       dataIndex: "user",
       key: "user",
       render: (image) => <p>{image?.phone}</p>,
@@ -386,16 +386,17 @@ const Complaint = () => {
   ];
   const handelFetch = async () => {
     try {
-      await productApi.getComplaint().then((res) => {
-        console.log(res, "res cc");
-
-        setCategory(res);
-        setLoading(false);
-      });
+      const response = await productApi.getComplaint(); // Gọi API lấy dữ liệu
+      const sortedComplaints = response.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      ); // Sắp xếp theo thời gian mới nhất
+      setCategory(sortedComplaints); // Cập nhật dữ liệu sau khi sắp xếp
+      setLoading(false);
     } catch (error) {
-      console.log("Failed to fetch category list:" + error);
+      console.error("Failed to fetch complaint list:", error);
     }
   };
+
   useEffect(() => {
     handelFetch();
   }, []);

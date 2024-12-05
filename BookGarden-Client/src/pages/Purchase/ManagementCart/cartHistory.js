@@ -196,11 +196,11 @@ const CartHistory = () => {
                 : "bg-gray-300 cursor-not-allowed"
             }`}
             onClick={() => handleCancelOrder(record)}
-            disabled={record.status !== "pending"}
+            disabled={record.status !== "pending"} // Chỉ hoạt động khi trạng thái là "pending"
           >
             Hủy đơn hàng
           </button>
-          {record.status == "final" && (
+          {record.status === "final" && (
             <button
               className="px-4 py-2 text-white font-semibold rounded bg-yellow-500 hover:bg-yellow-600 mt-3"
               onClick={() => history.push(`/complaint/${record._id}`)}
@@ -332,10 +332,10 @@ const CartHistory = () => {
       key: "status",
       render: (slugs) => {
         const checkStatus = {
-          finalcomplaint: "đã hoàn thành",
-          pendingcomplaint: "đang chờ",
-          acceptcomplaint: "đã duyệt",
-          refundcomplaint: "đang hoàn trả",
+          finalcomplaint: "Đã hoàn thành",
+          pendingcomplaint: "Đang chờ",
+          acceptcomplaint: "Đã duyệt",
+          refundcomplaint: "Đang hoàn trả",
         };
         return (
           <span className="flex justify-center items-center w-full text-center">
@@ -361,14 +361,17 @@ const CartHistory = () => {
       key: "complaintAction",
       render: (text, record) => (
         <div className="text-center">
-          {record.status === "pendingcomplaint" && (
-            <button
-              className="px-4 py-2 text-white font-semibold rounded bg-red-500 hover:bg-red-600"
-              onClick={() => handleCancelComplaint(record)}
-            >
-              Hủy khiếu nại
-            </button>
-          )}
+          <button
+            className={`px-4 py-2 text-white font-semibold rounded ${
+              record.status === "pendingcomplaint"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+            onClick={() => handleCancelComplaint(record)}
+            disabled={record.status !== "pendingcomplaint"} // Chỉ khả dụng nếu trạng thái là "pendingcomplaint"
+          >
+            Hủy khiếu nại
+          </button>
         </div>
       ),
     },
@@ -403,7 +406,7 @@ const CartHistory = () => {
                 </Breadcrumb.Item>
                 <Breadcrumb.Item href="">
                   <span>
-                    {complaints ? "Quản lý khiếu nại" : "Quản lý đơn hàng"}{" "}
+                    {complaints ? "Quản lý khiếu nại" : "Quản lý đơn hàng"}
                   </span>
                 </Breadcrumb.Item>
               </Breadcrumb>
@@ -416,20 +419,30 @@ const CartHistory = () => {
                   columns={complaints ? columnsComplain : columns}
                   dataSource={
                     complaints
-                      ? orderList.data?.filter(
-                          (ic) =>
-                            ic.status == "finalcomplaint" ||
-                            ic.status == "pendingcomplaint" ||
-                            ic.status == "acceptcomplaint" ||
-                            ic.status == "refundcomplaint"
-                        )
-                      : orderList.data?.filter(
-                          (ic) =>
-                            ic.status != "finalcomplaint" &&
-                            ic.status != "pendingcomplaint" &&
-                            ic.status != "acceptcomplaint" &&
-                            ic.status != "refundcomplaint"
-                        )
+                      ? orderList.data
+                          ?.filter(
+                            (ic) =>
+                              ic.status === "finalcomplaint" ||
+                              ic.status === "pendingcomplaint" ||
+                              ic.status === "acceptcomplaint" ||
+                              ic.status === "refundcomplaint"
+                          )
+                          .sort(
+                            (a, b) =>
+                              new Date(b.createdAt) - new Date(a.createdAt)
+                          ) // Sắp xếp mới nhất
+                      : orderList.data
+                          ?.filter(
+                            (ic) =>
+                              ic.status !== "finalcomplaint" &&
+                              ic.status !== "pendingcomplaint" &&
+                              ic.status !== "acceptcomplaint" &&
+                              ic.status !== "refundcomplaint"
+                          )
+                          .sort(
+                            (a, b) =>
+                              new Date(b.createdAt) - new Date(a.createdAt)
+                          ) // Sắp xếp mới nhất
                   }
                   rowKey="_id"
                   pagination={{ position: ["bottomCenter"] }}
