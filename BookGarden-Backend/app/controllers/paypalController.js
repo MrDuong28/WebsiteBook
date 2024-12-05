@@ -38,7 +38,7 @@ const paypalController = {
           {
             amount: {
               currency: "USD",
-              total: price,
+              total: price.toString(), // Đảm bảo `price` là chuỗi
             },
             description,
           },

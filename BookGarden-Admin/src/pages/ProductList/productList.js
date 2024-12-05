@@ -52,7 +52,6 @@ const ProductList = () => {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [image, setImage] = useState();
-  const [audioUrl, setAudio] = useState();
 
   const [newsList, setNewsList] = useState([]);
 
@@ -94,15 +93,14 @@ const ProductList = () => {
             description: description,
             category: values.category,
             image: response.image_url,
+            slide: images,
             salePrice: values.salePrice,
-            // slide: images,
             year: values.year,
             stock: values.stock,
             pages: values.pages,
             weight: values.weight,
             size: values.size,
             form: values.form,
-            url_book: bookUrl,
             author: values.author,
             pulisher: values.pulisher,
             status: values.status,
@@ -119,6 +117,7 @@ const ProductList = () => {
                 message: `Thông báo`,
                 description: "Tạo sản phẩm thành công",
               });
+              setImages([]);
               setOpenModalCreate(false);
               handleProductList();
             }
@@ -157,32 +156,6 @@ const ProductList = () => {
     }
   };
 
-  const handleFileUpload = async (info) => {
-    const image = info.file;
-    const formData = new FormData();
-    formData.append("image", image);
-
-    try {
-      await axiosClient
-        .post("/uploadFile", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((response) => {
-          const imageUrl = response.image_url;
-          console.log(imageUrl);
-          // Lưu trữ URL hình ảnh trong trạng thái của thành phần
-          setBookUrl(imageUrl);
-
-          console.log(images);
-          message.success(`${info.file.name} đã được tải lên thành công!`);
-        });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handleUpdateProduct = async (values) => {
     setLoading(true);
     try {
@@ -203,7 +176,7 @@ const ProductList = () => {
               price: values.price,
               category: values.category,
               image: response.image_url,
-              salePrice: values.salePrice || 0,
+              salePrice: values.salePrice,
               year: values.year,
               stock: values.stock,
               pages: values.pages,
@@ -211,7 +184,7 @@ const ProductList = () => {
               size: values.size,
               form: values.form,
               status: values.status,
-              url_book: bookUrl,
+
               author: values.author,
               pulisher: values.pulisher,
             };
@@ -243,7 +216,7 @@ const ProductList = () => {
           description: description,
           price: values.price,
           category: values.category,
-          salePrice: values.salePrice || 0,
+          salePrice: values.salePrice,
           year: values.year,
           stock: values.stock,
           pages: values.pages,
@@ -251,7 +224,6 @@ const ProductList = () => {
           size: values.size,
           form: values.form,
           status: values.status,
-          url_book: bookUrl.length > 0 ? bookUrl : "",
           author: values.author,
           pulisher: values.pulisher,
         };
@@ -333,15 +305,6 @@ const ProductList = () => {
     setImage(event.target.files[0]);
   };
 
-  const handleChangeAudioUrl = async (e) => {
-    setLoading(true);
-    const response = await uploadFileApi.uploadFile(e);
-    if (response) {
-      setAudio(response);
-    }
-    setLoading(false);
-  };
-
   const handleProductEdit = (id) => {
     setOpenModalUpdate(true);
     (async () => {
@@ -362,7 +325,7 @@ const ProductList = () => {
           weight: response.product.weight,
           size: response.product.size,
           form: response.product.form,
-          salePrice: response.product.salePrice || 0,
+          salePrice: response.product.salePrice,
         });
 
         console.log(form2);
@@ -895,7 +858,7 @@ const ProductList = () => {
                 />
               </Form.Item>
 
-              {/* <Form.Item
+              <Form.Item
                 name="images"
                 label="Hình ảnh slide"
                 style={{ marginBottom: 10 }}
@@ -910,24 +873,7 @@ const ProductList = () => {
                 >
                   <Button icon={<UploadOutlined />}>Tải lên</Button>
                 </Upload>
-              </Form.Item> */}
-
-              {/* <Form.Item
-                name="url_book"
-                label="File sách"
-                style={{ marginBottom: 10 }}
-              >
-                <Upload
-                  name="images"
-                  listType="picture-card"
-                  showUploadList={true}
-                  beforeUpload={() => false}
-                  onChange={handleFileUpload}
-                  multiple
-                >
-                  <Button icon={<UploadOutlined />}>Tải lên sách</Button>
-                </Upload>
-              </Form.Item> */}
+              </Form.Item>
 
               <Form.Item
                 name="category"
@@ -961,7 +907,7 @@ const ProductList = () => {
                 </Select>
               </Form.Item>
               <Form.Item
-                name="Tác giả"
+                name="author"
                 label="Author"
                 rules={[
                   {
@@ -1287,7 +1233,7 @@ const ProductList = () => {
               />
             </Form.Item>
 
-            {/* <Form.Item
+            <Form.Item
               name="images"
               label="Hình ảnh slide"
               style={{ marginBottom: 10 }}
@@ -1302,7 +1248,7 @@ const ProductList = () => {
               >
                 <Button icon={<UploadOutlined />}>Tải lên</Button>
               </Upload>
-            </Form.Item> */}
+            </Form.Item>
 
             <Form.Item
               name="category"
@@ -1457,7 +1403,6 @@ const ProductList = () => {
           </Form>
         </Drawer>
 
-        {/* <Pagination style={{ textAlign: "center", marginBottom: 20 }} current={currentPage} defaultCurrent={1} total={totalEvent} onChange={handlePage}></Pagination> */}
         <BackTop style={{ textAlign: "right" }} />
       </Spin>
     </div>
