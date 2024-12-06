@@ -3,9 +3,9 @@ import { Avatar, Dropdown, Row } from "antd";
 import { Menu } from "antd";
 import {
   UserOutlined,
-  SettingOutlined,
   LogoutOutlined,
   ShoppingCartOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import styles from "../layout/Header/header.module.css";
@@ -69,7 +69,7 @@ function DropdownAvatar() {
           Quản lý đơn hàng
         </a>
       </Menu.Item>
-      <Menu.Item icon={<ShoppingCartOutlined />}>
+      <Menu.Item icon={<ExclamationCircleOutlined />}>
         <a
           target="_blank"
           rel="noopener noreferrer"

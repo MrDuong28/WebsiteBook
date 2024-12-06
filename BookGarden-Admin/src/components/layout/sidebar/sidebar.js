@@ -8,9 +8,11 @@ import {
   ShoppingCartOutlined,
   FormOutlined,
   EditOutlined,
+  DiffOutlined,
   CloudUploadOutlined,
   UnorderedListOutlined,
   FolderOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 
 const { SubMenu } = Menu;
@@ -39,17 +41,25 @@ function Sidebar() {
       link: "/product-list",
       icon: <FormOutlined />,
     },
+
     {
       key: "order-list",
       title: "Quản lý đơn hàng",
       link: "/order-list",
       icon: <ShoppingCartOutlined />,
     },
+
     {
       key: "kl-list",
       title: "Quản lý khiếu nại",
       link: "/complaint-list",
-      icon: <ShoppingCartOutlined />,
+      icon: <ExclamationCircleOutlined />,
+    },
+    {
+      key: "news-list",
+      title: "Tin tức",
+      link: "/news-list",
+      icon: <DiffOutlined />,
     },
   ];
 

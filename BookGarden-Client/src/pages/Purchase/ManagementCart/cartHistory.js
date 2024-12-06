@@ -37,7 +37,36 @@ const CartHistory = () => {
       },
     });
   };
+  const handleConfirmOrder = async (order) => {
+    Modal.confirm({
+      title: "Xác nhận đơn hàng",
+      content: "Bạn có chắc muốn xác nhận đơn hàng này?",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          // Cập nhật trạng thái của đơn hàng
+          const updatedOrder = {
+            status: "final", // Thay đổi trạng thái thành 'final'
+          };
 
+          await axiosClient.put(`/order/${order._id}`, updatedOrder);
+
+          notification["success"]({
+            message: "Thông báo",
+            description: "Đơn hàng đã được xác nhận thành công!",
+          });
+
+          handleList(); // Cập nhật lại danh sách đơn hàng
+        } catch (error) {
+          notification["error"]({
+            message: "Lỗi",
+            description: "Đã xảy ra lỗi khi xác nhận đơn hàng.",
+          });
+        }
+      },
+    });
+  };
   const handleUpdateOrder = async (id) => {
     setLoading(true);
     try {
@@ -147,17 +176,13 @@ const CartHistory = () => {
             <div className="status bg-blue-500 text-white py-1 px-4 rounded-full font-semibold">
               Đang vận chuyển
             </div>
-          ) : slugs === "delivered_unpaid" ? (
-            <div className="status bg-green-500 text-white py-1 px-4 rounded-full font-semibold">
+          ) : slugs === "shipped successfully" ? (
+            <div className="status bg-indigo-500 text-white py-1 px-4 rounded-full font-semibold">
               Đã giao
             </div>
           ) : slugs === "final" ? (
-            <div className="status bg-indigo-500 text-white py-1 px-4 rounded-full font-semibold">
-              Giao hàng thành công
-            </div>
-          ) : slugs === "returned" ? (
-            <div className="status bg-orange-500 text-white py-1 px-4 rounded-full font-semibold">
-              Đã hoàn trả
+            <div className="status bg-green-500 text-white py-1 px-4 rounded-full font-semibold">
+              Hoàn thành
             </div>
           ) : slugs === "confirmed" ? (
             <div className="status bg-blue-600 text-white py-1 px-4 rounded-full font-semibold">
@@ -189,25 +214,55 @@ const CartHistory = () => {
       key: "order",
       render: (text, record) => (
         <div className="text-center">
-          <button
-            className={`px-4 py-2 text-white font-semibold rounded ${
-              record.status === "pending"
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-gray-300 cursor-not-allowed"
-            }`}
-            onClick={() => handleCancelOrder(record)}
-            disabled={record.status !== "pending"} // Chỉ hoạt động khi trạng thái là "pending"
-          >
-            Hủy đơn hàng
-          </button>
-          {record.status === "final" && (
+          {record.status === "shipped successfully" && (
+            <button
+              className="px-4 py-2 text-white font-semibold rounded bg-green-500 hover:bg-green-600 mt-3"
+              onClick={() => handleConfirmOrder(record)}
+            >
+              Xác nhận đơn hàng
+            </button>
+          )}
+          {/* Nút Xác nhận đơn hàng chỉ khi trạng thái là "shipped successfully" */}
+          {record.status === "shipped successfully" && (
             <button
               className="px-4 py-2 text-white font-semibold rounded bg-yellow-500 hover:bg-yellow-600 mt-3"
-              onClick={() => history.push(`/complaint/${record._id}`)}
+              onClick={() => {
+                // Hiển thị Modal xác nhận
+                Modal.confirm({
+                  title: "Xác nhận khiếu nại/Hoàn hàng",
+                  content:
+                    "Bạn có chắc chắn muốn khiếu nại/hoàn hàng đơn hàng này?",
+                  okText: "Xác nhận",
+                  cancelText: "Hủy",
+                  onOk() {
+                    // Sau khi xác nhận, chuyển hướng tới trang khiếu nại
+                    history.push(`/complaint/${record._id}`);
+
+                    // Hiển thị thông báo thành công
+                  },
+                  onCancel() {
+                    // Nếu người dùng hủy bỏ, không làm gì
+                  },
+                });
+              }}
             >
               Khiếu nại/Hoàn hàng
             </button>
           )}
+
+          <button
+            className={`px-4 py-2 text-white font-semibold rounded mt-3 ${
+              record.status === "pending" || record.status === "confirmed"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+            onClick={() => handleCancelOrder(record)}
+            disabled={
+              !(record.status === "pending" || record.status === "confirmed")
+            } // Chỉ hoạt động khi trạng thái là "pending" hoặc "confirmed"
+          >
+            Hủy đơn hàng
+          </button>
         </div>
       ),
     },

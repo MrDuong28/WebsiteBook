@@ -22,6 +22,9 @@ import orderApi from "../../apis/orderApi";
 import { useHistory } from "react-router-dom";
 import axiosClient from "../../apis/axiosClient";
 import { PageHeader } from "@ant-design/pro-layout";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:3500"); // Địa chỉ server WebSocket
+
 const { Option } = Select;
 const { Title } = Typography;
 
@@ -37,26 +40,31 @@ const OrderList = () => {
       const categoryList = {
         status: value,
       };
-      await axiosClient
-        .put(`/order/${record._id}`, categoryList)
-        .then((response) => {
-          if (response === undefined) {
-            notification["error"]({
-              message: `Thông báo`,
-              description: "Cập nhật trạng thái thất bại",
-            });
-          } else {
-            notification["success"]({
-              message: `Thông báo`,
-              description: "Cập nhật trạng thái thành công",
-            });
-            setOrder((prevOrder) =>
-              prevOrder.map((o) =>
-                o._id === record._id ? { ...o, status: value } : o
-              )
-            );
-          }
+      const response = await axiosClient.put(
+        `/order/${record._id}`,
+        categoryList
+      );
+      if (!response) {
+        notification["error"]({
+          message: `Thông báo`,
+          description: "Cập nhật trạng thái thất bại",
         });
+      } else {
+        notification["success"]({
+          message: `Thông báo`,
+          description: "Cập nhật trạng thái thành công",
+        });
+
+        // Cập nhật trạng thái cục bộ
+        setOrder((prevOrder) =>
+          prevOrder.map((o) =>
+            o._id === record._id ? { ...o, status: value } : o
+          )
+        );
+
+        // Phát sự kiện WebSocket để client khác cập nhật
+        socket.emit("orderUpdated", { orderId: record._id, newStatus: value });
+      }
       setLoading(false);
     } catch (error) {
       console.error("Failed to update order status:", error);
@@ -153,8 +161,11 @@ const OrderList = () => {
           <Option value="shipping" disabled={status !== "confirmed"}>
             Đang vận chuyển
           </Option>
-          <Option value="final" disabled={status !== "shipping"}>
+          <Option value="shipped successfully" disabled={status !== "shipping"}>
             Giao hàng thành công
+          </Option>
+          <Option value="final" disabled={status !== "shipped successfully"}>
+            Hoàn thành
           </Option>
           <Option value="rejected" disabled={status !== "pending"}>
             Đã hủy
